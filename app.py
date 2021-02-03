@@ -4,7 +4,9 @@ from flask import Flask, request
 from flask_cors import CORS
 from indexgenerator import make_index
 from flask_mail import Mail, Message
-from config import PASSWORD, SECRET_KEY
+# from config import PASSWORD, SECRET_KEY
+SECRET_KEY = os.environ.get('SECRET_KEY')
+PASSWORD = os.environ.get('PASSWORD')
 
 app = Flask(__name__)
 CORS(app)
@@ -26,7 +28,7 @@ def send_index(email):
     words = request.files['words']
 
     message = 'here is your index'
-    subject = "your index"
+    subject = 'your index'
     make_index(ms, words)
 
     msg = Message(recipients=[email],
