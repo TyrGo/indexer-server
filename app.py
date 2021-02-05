@@ -33,7 +33,7 @@ def send_index(email):
     make_index(ms, words)
 
     msg = Message(recipients=[email],
-                  sender="getyourindex@gmail.com",
+                  sender="getyourindex@zohomail.com",
                   body=message,
                   subject=subject)
 
