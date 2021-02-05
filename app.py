@@ -38,7 +38,7 @@ def send_index(email):
 
     with app.open_resource("index.txt") as fp:
         msg.attach("index.txt", "text/plain", fp.read())
-
+    print("p******", PASSWORD[:3])
     mail.send(msg)
     os.remove("index.txt")
 
