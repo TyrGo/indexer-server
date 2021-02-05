@@ -16,7 +16,8 @@ app.config.update(
     # MAIL_PORT=465,
     # MAIL_USE_SSL=True,
     MAIL_PORT = 465,
-    MAIL_USE_SSL = False,   
+    MAIL_USE_TLS = True,
+    # MAIL_USE_SSL = False,   
     MAIL_USERNAME='getyourindex@gmail.com',
     MAIL_PASSWORD=PASSWORD
 )
