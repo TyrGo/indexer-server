@@ -15,6 +15,7 @@ app.config.update(
     MAIL_SERVER='smtp.zoho.com',
     MAIL_PORT=465,
     MAIL_USE_SSL=True,  
+    SECURITY_EMAIL_SENDER = 'getyourindex@zohomail.com',
     MAIL_USERNAME='getyourindex@zohomail.com',
     MAIL_PASSWORD=PASSWORD
 )
