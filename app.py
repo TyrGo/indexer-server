@@ -32,6 +32,7 @@ mail = Mail(app)
 
 
 def make_and_send(ms_path, words_path, email):
+    print("***words_path", words_path)
     with open(words_path) as words:
         with app.app_context():
 
@@ -63,9 +64,10 @@ def send_index(email):
     letters = string.ascii_lowercase
     random_path_ms = ''.join(random.choice(letters) for i in range(5))
     random_path_words = ''.join(random.choice(letters) for i in range(5))
-
+    print("******cwd", cwd)
     ms_path = os.path.join(cwd, f"{random_path_ms}.pdf")
     words_path = os.path.join(cwd, f"{random_path_words}.txt")
+    print("********ms_path", ms_path)
     ms.save(ms_path)
     words.save(words_path)
     q.enqueue(make_and_send, ms_path, words_path, email)
