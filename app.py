@@ -58,6 +58,7 @@ def make_and_send(ms_path, words_path, email):
 def send_index(email):
     ms = request.files['ms']
     words = request.files['words']
+    print("*******checking werkzeug fileresource", ms)
     
     cwd = os.getcwd()
 
