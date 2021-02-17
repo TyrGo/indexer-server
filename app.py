@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from indexgenerator import make_index
 from flask_mail import Mail, Message
-import redis
+from worker import conn
 from rq import Queue
 
 # from config import PASSWORD, SECRET_KEY
@@ -17,8 +17,7 @@ PASSWORD = os.environ.get('PASSWORD')
 app = Flask(__name__)
 CORS(app)
 
-r = redis.Redis()
-q = Queue(connection=r)
+q = Queue(connection=conn)
 
 app.config.update(
     MAIL_SERVER='smtp.zoho.com',
