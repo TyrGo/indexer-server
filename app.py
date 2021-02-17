@@ -69,7 +69,7 @@ def send_index(email):
     ms_path = os.path.join(cwd, f"{random_path_ms}.pdf")
     words_path = os.path.join(cwd, f"{random_path_words}.txt")
     print("********ms_path", ms_path)
-    ms.save(ms_path)
+    print("******saveing", ms.save(ms_path))
     words.save(words_path)
     q.enqueue(make_and_send, ms_path, words_path, email)
     
