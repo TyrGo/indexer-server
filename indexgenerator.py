@@ -3,13 +3,11 @@ import re
 import pdfplumber
 
 
-def make_index(ms, words):
+def make_index(ms_path, words):
     '''Writes an index for a book from a list of entries'''
-
     entries = get_entries(words)
     entries_list = list_entries(entries)
-    found_words = find_words(ms, entries_list)
-    print(f"found_words: {found_words}")
+    found_words = find_words(ms_path, entries_list)
     ranged_words = rangify_list(found_words)
     index = write_index(entries, ranged_words)
     write_file(index)
@@ -17,13 +15,12 @@ def make_index(ms, words):
 
 def get_entries(words):
     '''Gets a list of entry lines from a txt file'''
-
     byte_entries = words.read().splitlines()
-    lines = [entry.decode('utf-8') for entry in byte_entries]
+    # lines = [entry.decode('utf-8') for entry in byte_entries]
+    lines = [entry for entry in byte_entries]
     # better: get more e.g. ' ' with regex
     not_empties = [line for line in lines if line != '']
     entries = sorted(not_empties, key=str.casefold)
-    print(f"lines to index: {entries}")
     return entries
 
 
@@ -56,12 +53,12 @@ def remove_ligatures(word):
             )  # many more ligatures; maybe best to do via dictionary of them
 
 
-def find_words(ms, entries_list):
+def find_words(ms_path, entries_list):
     '''Produces a dictionary of entries and corresponding manuscript pages'''
-
+    
     found_words = {}
-
-    with pdfplumber.open(ms) as pdf:
+    
+    with pdfplumber.open(ms_path) as pdf:
         all_pages = len(pdf.pages)
 
         for num in range(all_pages):
