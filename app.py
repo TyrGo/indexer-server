@@ -2,6 +2,7 @@ import stripe
 import os
 import random
 import string
+import boto3
 from flask import Flask, request
 from flask_cors import CORS
 from indexgenerator import make_index
@@ -9,10 +10,20 @@ from flask_mail import Mail, Message
 from worker import conn
 from rq import Queue
 
-# from config import PASSWORD, SECRET_KEY
+# from config import PASSWORD, SECRET_KEY, S3_BUCKET, S3_KEY, S3_SECRET
 SECRET_KEY = os.environ.get('SECRET_KEY')
 PASSWORD = os.environ.get('PASSWORD')
+S3_BUCKET = os.environ.get('S3_BUCKET')
+S3_KEY = os.environ.get('S3_KEY')
+S3_SECRET = os.environ.get('S3_SECRET')
 
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=S3_KEY,
+    aws_secret_access_key=S3_SECRET)
+
+s3_resource = boto3.resource('s3')
+my_bucket = s3_resource.Bucket(S3_BUCKET)
 
 app = Flask(__name__)
 CORS(app)
@@ -31,49 +42,44 @@ app.config.update(
 mail = Mail(app)
 
 
-def make_and_send(ms_path, words_path, email):
-    print("***words_path", words_path)
-    with open(words_path) as words:
-        with app.app_context():
+def make_and_send(ms_name, words_name, email):
 
-            message = 'here is your index'
-            subject = 'your index'
-            make_index(ms_path, words)
-            msg = Message(recipients=[email],
-                        sender="getyourindex@zohomail.com",
-                        body=message,
-                        subject=subject)
+    with app.app_context():
+        s3.download_file(S3_BUCKET, ms_name, ms_name)
+        s3.download_file(S3_BUCKET, words_name, words_name)
 
-            with app.open_resource("index.txt") as fp:
-                msg.attach("index.txt", "text/plain", fp.read())
+        with open(words_name) as words:
+            make_index(ms_name, words)
 
-            mail.send(msg)
+        msg = Message(recipients=[email],
+                    sender="getyourindex@zohomail.com",
+                    body='here is your index',
+                    subject='your index')
 
-            os.remove(ms_path)
-            os.remove(words_path)
-            os.remove("index.txt")
+        with app.open_resource("index.txt") as fp:
+            msg.attach("index.txt", "text/plain", fp.read())
+
+        mail.send(msg)
+
+        os.remove(ms_name)
+        os.remove(words_name)
+        os.remove("index.txt")
         return app
 
 @app.route('/<email>', methods=["POST"])
 def send_index(email):
     ms = request.files['ms']
     words = request.files['words']
-    print("*******checking werkzeug fileresource", ms)
-    
-    cwd = os.getcwd()
 
     letters = string.ascii_lowercase
-    random_path_ms = ''.join(random.choice(letters) for i in range(5))
-    random_path_words = ''.join(random.choice(letters) for i in range(5))
-    print("******cwd", cwd)
-    # ms_path = os.path.join(cwd, f"{random_path_ms}.pdf")
-    # words_path = os.path.join(cwd, f"{random_path_words}.txt")
-    ms_path = os.path.join("/app/tmp", f"{random_path_ms}.pdf")
-    words_path = os.path.join("/app/tmp", f"{random_path_words}.txt")
-    print("********ms_path", ms_path)
-    ms.save(ms_path)
-    words.save(words_path)
-    q.enqueue(make_and_send, ms_path, words_path, email)
+    random_name = ''.join(random.choice(letters) for i in range(5))
+    ms.filename = f"{random_name}.pdf"
+    words.filename = f"{random_name}.txt"
+
+    my_bucket.Object(ms.filename).put(Body=ms)
+    my_bucket.Object(words.filename).put(Body=words)
+
+    q.enqueue(make_and_send, ms.filename, words.filename, email)
     
     return {'result': "success"}
 
