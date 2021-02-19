@@ -13,14 +13,14 @@ from rq import Queue
 # from config import PASSWORD, SECRET_KEY, S3_BUCKET, S3_KEY, S3_SECRET
 SECRET_KEY = os.environ.get('SECRET_KEY')
 PASSWORD = os.environ.get('PASSWORD')
-S3_BUCKET = os.environ.get('S3_BUCKET')
-S3_KEY = os.environ.get('S3_KEY')
-S3_SECRET = os.environ.get('S3_SECRET')
+S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 s3 = boto3.client(
     's3',
-    aws_access_key_id=S3_KEY,
-    aws_secret_access_key=S3_SECRET)
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 s3_resource = boto3.resource('s3')
 my_bucket = s3_resource.Bucket(S3_BUCKET)
